@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VinWonders Travel Assistant</title>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #f8fafc;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+
+      --accent: #0077ff;
+      --accent-dark: #005fd1;
+      --accent-soft: #e0f2fe;
+      --cyan: #00c2ff;
+      --sun: #ffb703;
+      --sand: #fff7e6;
+
+      --bubble-user: #0077ff;
+      --bubble-assistant: #ffffff;
+
+      --danger: #b42318;
+      --success: #047857;
+      --shadow: 0 18px 45px rgba(15, 23, 42, .10);
+      --soft-shadow: 0 10px 30px rgba(15, 23, 42, .07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(0, 194, 255, .18), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(255, 183, 3, .16), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 64px minmax(0, 1fr);
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      font-weight: 800;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 10px 24px rgba(0, 119, 255, .25);
+    }
+
+    .brand-main {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .brand-text {
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .model-pill {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 13px;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .9);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 350px minmax(0, 1fr);
+    }
+
+    .travel-panel {
+      min-height: 0;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(248, 250, 252, .86);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-card {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .92);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .hero-card {
+      color: #083344;
+      background:
+        linear-gradient(135deg, rgba(224, 247, 255, .98), rgba(255, 248, 220, .98));
+      border-color: rgba(0, 119, 255, .14);
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin-bottom: 9px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(0, 119, 255, .1);
+      color: #075985;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .panel-card h2 {
+      margin: 0 0 8px;
+      font-size: 23px;
+      line-height: 1.2;
+    }
+
+    .panel-card h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .panel-card p {
+      margin: 0;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .trip-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .trip-row:first-of-type {
+      border-top: 0;
+    }
+
+    .trip-row span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .trip-row strong {
+      color: var(--ink);
+      font-size: 13px;
+      text-align: right;
+      line-height: 1.4;
+    }
+
+    .trip-row.vertical {
+      display: grid;
+      gap: 6px;
+    }
+
+    .trip-row.vertical strong {
+      text-align: left;
+    }
+
+    .mini-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.55;
+      display: grid;
+      gap: 7px;
+    }
+
+    .reset-btn {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 800;
+      box-shadow: var(--soft-shadow);
+      transition: background .16s ease, color .16s ease, border-color .16s ease;
+    }
+
+    .reset-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      border-color: rgba(0, 119, 255, .22);
+    }
+
+    .chat {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+
+    .messages {
+      min-height: 0;
+      overflow: auto;
+      padding: 34px 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .empty {
+      margin: auto;
+      width: min(820px, 100%);
+      text-align: center;
+      display: grid;
+      gap: 24px;
+      padding-bottom: 6vh;
+    }
+
+    .empty-badge {
+      width: fit-content;
+      margin: 0 auto;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(0, 119, 255, .09);
+      color: #075985;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .empty h1 {
+      margin: 0;
+      font-size: clamp(30px, 4.2vw, 48px);
+      letter-spacing: -.03em;
+      font-weight: 850;
+      line-height: 1.08;
+    }
+
+    .empty p {
+      margin: 0 auto;
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      text-align: left;
+    }
+
+    .suggestion {
+      min-height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+      background: rgba(255, 255, 255, .9);
+      display: grid;
+      gap: 7px;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .suggestion:hover {
+      transform: translateY(-2px);
+      background: #fff;
+      border-color: rgba(0, 119, 255, .28);
+      box-shadow: 0 16px 36px rgba(0, 119, 255, .11);
+    }
+
+    .suggestion strong {
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .suggestion span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: -6px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, .92);
+      color: #334155;
+      font-size: 13px;
+      font-weight: 750;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      background: var(--accent-soft);
+      border-color: rgba(0, 119, 255, .22);
+      color: var(--accent-dark);
+    }
+
+    .message {
+      width: min(820px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 14px;
+      animation: rise .18s ease both;
+    }
+
+    .message.user {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      font-size: 12px;
+      font-weight: 900;
+      margin-top: 2px;
+      box-shadow: 0 10px 22px rgba(0, 119, 255, .2);
+    }
+
+    .content {
+      line-height: 1.75;
+      font-size: 15px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .assistant .content {
+      background: rgba(255, 255, 255, .88);
+      border: 1px solid rgba(226, 232, 240, .9);
+      border-radius: 20px;
+      border-top-left-radius: 8px;
+      padding: 15px 17px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .user .content {
+      justify-self: end;
+      max-width: min(640px, 88%);
+      background: linear-gradient(135deg, var(--bubble-user), var(--cyan));
+      color: white;
+      border-radius: 20px;
+      border-bottom-right-radius: 8px;
+      padding: 12px 16px;
+      line-height: 1.58;
+      box-shadow: 0 14px 32px rgba(0, 119, 255, .22);
+    }
+
+    .typing {
+      width: min(820px, 100%);
+      margin: 0 auto 10px;
+      display: none;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      align-items: center;
+    }
+
+    .typing.active {
+      display: grid;
+    }
+
+    .typing-bubble {
+      width: fit-content;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .9);
+      border-radius: 18px;
+      padding: 12px 16px;
+      box-shadow: var(--soft-shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dots,
+    .dots::before,
+    .dots::after {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+      animation: blink 1s infinite ease-in-out;
+    }
+
+    .dots {
+      position: relative;
+      margin-left: 12px;
+      animation-delay: .14s;
+    }
+
+    .dots::before,
+    .dots::after {
+      content: "";
+      position: absolute;
+      top: 0;
+    }
+
+    .dots::before {
+      left: -10px;
+      animation-delay: 0s;
+    }
+
+    .dots::after {
+      right: -10px;
+      animation-delay: .28s;
+    }
+
+    @keyframes blink {
+      0%, 80%, 100% {
+        opacity: .25;
+        transform: translateY(0);
+      }
+      40% {
+        opacity: 1;
+        transform: translateY(-3px);
+      }
+    }
+
+    .composer-wrap {
+      padding: 12px 22px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0), #fff 28%);
+    }
+
+    .composer {
+      width: min(820px, 100%);
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 46px;
+      gap: 8px;
+      padding: 10px 10px 10px 17px;
+      align-items: end;
+      backdrop-filter: blur(12px);
+    }
+
+    textarea {
+      min-height: 34px;
+      max-height: 180px;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      line-height: 1.5;
+      padding: 9px 0;
+    }
+
+    .send {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      transition: transform .15s ease, opacity .15s ease, filter .15s ease;
+      box-shadow: 0 12px 28px rgba(0, 119, 255, .24);
+    }
+
+    .send:hover {
+      filter: brightness(.96);
+      transform: translateY(-1px);
+    }
+
+    .send:disabled,
+    textarea:disabled,
+    .suggestion:disabled,
+    .chip:disabled,
+    .reset-btn:disabled {
+      opacity: .55;
+      cursor: wait;
+      transform: none;
+    }
+
+    .hint {
+      margin: 9px auto 0;
+      width: min(820px, 100%);
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    @media (max-width: 980px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .travel-panel {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        padding: 0 12px;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .brand-text {
+        max-width: 190px;
+      }
+
+      .model-pill {
+        max-width: 132px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .suggestions {
+        grid-template-columns: 1fr;
+      }
+
+      .messages {
+        padding: 24px 14px 16px;
+      }
+
+      .message,
+      .typing {
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .message.user {
+        grid-template-columns: 1fr;
+      }
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 11px;
+      }
+
+      .user .content {
+        max-width: 94%;
+      }
+
+      .composer-wrap {
+        padding: 10px 12px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">VW</div>
+        <div class="brand-main">
+          <div class="brand-text">VinWonders Travel Assistant</div>
+          <div class="brand-subtitle">Tư vấn điểm đến, ưu đãi, show và lịch trình</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="model-pill" id="modelPill">Đang kết nối...</div>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="travel-panel">
+        <div class="panel-card hero-card">
+          <div class="eyebrow">Travel planner</div>
+          <h2>Trợ lý tư vấn VinWonders</h2>
+          <p>
+            Mình sẽ giúp bạn chọn điểm đến phù hợp, kiểm tra khuyến mãi,
+            gợi ý show/sự kiện và lên lịch trình vui chơi trong ngày.
+          </p>
+        </div>
+
+        <div class="panel-card">
+          <h3>🧭 Thông tin chuyến đi</h3>
+
+          <div class="trip-row">
+            <span>👥 Số người</span>
+            <strong id="tripGroup">Chưa rõ</strong>
+          </div>
+
+          <div class="trip-row">
+            <span>📅 Ngày đi</span>
+            <strong id="tripDate">Chưa rõ</strong>
+          </div>
+
+          <div class="trip-row">
+            <span>📍 Xuất phát</span>
+            <strong id="tripLocation">Chưa rõ</strong>
+          </div>
+
+          <div class="trip-row">
+            <span>🎡 Điểm đến</span>
+            <strong id="tripDestination">Đang tư vấn</strong>
+          </div>
+
+          <div class="trip-row vertical">
+            <span>✨ Sở thích</span>
+            <strong id="tripInterests">Chưa rõ</strong>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3>🎟️ Khuyến mãi</h3>
+          <ul class="mini-list" id="tripPromotions">
+            <li>Chưa có dữ liệu khuyến mãi</li>
+          </ul>
+        </div>
+
+        <div class="panel-card">
+          <h3>🎭 Show / sự kiện</h3>
+          <ul class="mini-list" id="tripEvents">
+            <li>Chưa có dữ liệu show/sự kiện</li>
+          </ul>
+        </div>
+
+        <button class="reset-btn" id="resetButton" type="button">
+          Làm mới cuộc trò chuyện
+        </button>
+      </aside>
+
+      <section class="chat">
+        <div class="messages" id="messages">
+          <section class="empty" id="emptyState">
+            <div>
+              <div class="empty-badge">VinWonders AI Tour Guide</div>
+              <h1>Hôm nay bạn muốn đi VinWonders thế nào?</h1>
+              <p>
+                Hãy cho mình biết bạn đi ngày nào, đi mấy người, xuất phát từ đâu
+                và thích trải nghiệm gì. Mình sẽ gợi ý điểm đến, ưu đãi, show và
+                lịch trình phù hợp.
+              </p>
+            </div>
+
+            <div class="quick-chips">
+              <button class="chip" data-send="Tôi thích trò chơi cảm giác mạnh, hãy tư vấn VinWonders phù hợp.">🎢 Cảm giác mạnh</button>
+              <button class="chip" data-send="Tôi muốn xem show buổi tối ở VinWonders, hãy gợi ý giúp tôi.">🎆 Show buổi tối</button>
+              <button class="chip" data-send="Tôi muốn tìm khuyến mãi vé VinWonders hiện tại.">🎟️ Khuyến mãi vé</button>
+              <button class="chip" data-send="Tôi muốn gợi ý các điểm check-in đẹp ở VinWonders.">📸 Check-in đẹp</button>
+            </div>
+
+            <div class="suggestions">
+              <button class="suggestion" data-send="Tôi muốn đi VinWonders vào cuối tuần này cùng nhóm bạn. Hãy gợi ý điểm vui chơi phù hợp, kiểm tra khuyến mãi hiện tại, sự kiện hoặc show đang có/sắp diễn ra, rồi đề xuất lịch trình vui chơi hợp lý trong ngày.">
+                <strong>🌤️ Tư vấn cuối tuần này</strong>
+                <span>Gợi ý điểm vui chơi, ưu đãi, show và lịch trình trong ngày.</span>
+              </button>
+
+              <button class="suggestion" data-send="Kiểm tra giúp tôi khuyến mãi vé VinWonders hiện tại.">
+                <strong>🎟️ Kiểm tra khuyến mãi vé</strong>
+                <span>Tìm ưu đãi phù hợp và nhắc kiểm tra kênh chính thức.</span>
+              </button>
+
+              <button class="suggestion" data-send="Gợi ý lịch trình vui chơi VinWonders trong ngày cho nhóm bạn.">
+                <strong>🗓️ Gợi ý lịch trình trong ngày</strong>
+                <span>Sắp xếp khung giờ ăn uống, vui chơi, check-in và xem show.</span>
+              </button>
+
+              <button class="suggestion" data-send="Đi VinWonders cùng nhóm bạn thì nên chơi gì? Ưu tiên trò cảm giác mạnh, check-in và hoạt động buổi tối.">
+                <strong>🧑‍🤝‍🧑 Đi nhóm bạn nên chơi gì?</strong>
+                <span>Ưu tiên trò chơi, ảnh đẹp, show và trải nghiệm sôi động.</span>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div class="composer-wrap">
+          <div class="typing" id="typingState">
+            <div class="avatar">VW</div>
+            <div class="typing-bubble">
+              <span id="typingText">Agent đang tư vấn chuyến đi phù hợp...</span>
+              <span class="dots"></span>
+            </div>
+          </div>
+
+          <form class="composer" id="chatForm">
+            <textarea
+              id="prompt"
+              placeholder="Ví dụ: Cuối tuần này nhóm 4 người từ Hà Nội muốn đi VinWonders..."
+              autocomplete="off"
+            ></textarea>
+
+            <button class="send" id="sendButton" type="submit" aria-label="Gửi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 19V5M5 12l7-7 7 7"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </form>
+
+          <div class="hint">
+            Thông tin khuyến mãi, giá vé và lịch show có thể thay đổi.
+            Hãy kiểm tra lại trên website/app chính thức của VinWonders trước khi đặt vé.
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      history: [],
+      busy: false,
+      typingTimer: null,
+      typingIndex: 0
+    };
+
+    const typingMessages = [
+      "Agent đang tìm điểm đến phù hợp...",
+      "Agent đang kiểm tra khuyến mãi hiện tại...",
+      "Agent đang xem show và sự kiện...",
+      "Agent đang xây lịch trình vui chơi trong ngày...",
+      "Agent đang tổng hợp gợi ý cho bạn..."
+    ];
+
+    const messages = document.querySelector("#messages");
+    const emptyState = document.querySelector("#emptyState");
+    const form = document.querySelector("#chatForm");
+    const promptInput = document.querySelector("#prompt");
+    const sendButton = document.querySelector("#sendButton");
+    const typingState = document.querySelector("#typingState");
+    const typingText = document.querySelector("#typingText");
+    const modelPill = document.querySelector("#modelPill");
+    const resetButton = document.querySelector("#resetButton");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatAssistantText(text) {
+      const safe = escapeHtml(text);
+
+      return safe
+        .replaceAll("Điểm đến phù hợp", "📍 Điểm đến phù hợp")
+        .replaceAll("Khuyến mãi hiện tại", "🎟️ Khuyến mãi hiện tại")
+        .replaceAll("Sự kiện/show", "🎭 Sự kiện/show")
+        .replaceAll("Lịch trình", "🗓️ Lịch trình")
+        .replaceAll("Mẹo", "💡 Mẹo")
+        .replaceAll("Lưu ý", "⚠️ Lưu ý");
+    }
+
+    function addMessage(role, text, isError = false) {
+      document.querySelector("#emptyState")?.remove();
+
+      const node = document.createElement("article");
+      node.className = `message ${role}`;
+
+      if (role === "user") {
+        node.innerHTML = `<div class="content">${escapeHtml(text)}</div>`;
+      } else {
+        node.innerHTML = `
+          <div class="avatar">VW</div>
+          <div class="content ${isError ? "error" : ""}">${formatAssistantText(text)}</div>
+        `;
+      }
+
+      messages.appendChild(node);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function setBusy(isBusy) {
+      state.busy = isBusy;
+      typingState.classList.toggle("active", isBusy);
+      promptInput.disabled = isBusy;
+      sendButton.disabled = isBusy;
+
+      for (const button of document.querySelectorAll(".suggestion, .chip")) {
+        button.disabled = isBusy;
+      }
+
+      if (resetButton) {
+        resetButton.disabled = isBusy;
+      }
+
+      if (isBusy) {
+        startTypingText();
+      } else {
+        stopTypingText();
+      }
+    }
+
+    function startTypingText() {
+      stopTypingText();
+
+      state.typingIndex = 0;
+      typingText.textContent = typingMessages[state.typingIndex];
+
+      state.typingTimer = setInterval(() => {
+        state.typingIndex = (state.typingIndex + 1) % typingMessages.length;
+        typingText.textContent = typingMessages[state.typingIndex];
+      }, 1800);
+    }
+
+    function stopTypingText() {
+      if (state.typingTimer) {
+        clearInterval(state.typingTimer);
+        state.typingTimer = null;
+      }
+    }
+
+    function resizeInput() {
+      promptInput.style.height = "auto";
+      promptInput.style.height = `${Math.min(promptInput.scrollHeight, 180)}px`;
+    }
+
+    function renderList(selector, items, emptyText) {
+      const node = document.querySelector(selector);
+      if (!node) return;
+
+      const values = Array.isArray(items) ? items.filter(Boolean) : [];
+
+      if (!values.length) {
+        node.innerHTML = `<li>${escapeHtml(emptyText)}</li>`;
+        return;
+      }
+
+      node.innerHTML = values
+        .slice(0, 4)
+        .map(item => `<li>${escapeHtml(item)}</li>`)
+        .join("");
+    }
+
+    function updateTripPanel(trip) {
+      if (!trip) return;
+
+      const groupNode = document.querySelector("#tripGroup");
+      const dateNode = document.querySelector("#tripDate");
+      const locationNode = document.querySelector("#tripLocation");
+      const destinationNode = document.querySelector("#tripDestination");
+      const interestsNode = document.querySelector("#tripInterests");
+
+      if (groupNode) {
+        groupNode.textContent = trip.group_size ? `${trip.group_size} người` : "Chưa rõ";
+      }
+
+      if (dateNode) {
+        dateNode.textContent = trip.travel_date || "Chưa rõ";
+      }
+
+      if (locationNode) {
+        locationNode.textContent = trip.location || "Chưa rõ";
+      }
+
+      if (destinationNode) {
+        destinationNode.textContent = trip.destination || "Đang tư vấn";
+      }
+
+      if (interestsNode) {
+        const interests = Array.isArray(trip.interests) && trip.interests.length
+          ? trip.interests.join(", ")
+          : "Chưa rõ";
+
+        interestsNode.textContent = interests;
+      }
+
+      renderList("#tripPromotions", trip.promotions, "Chưa có dữ liệu khuyến mãi");
+      renderList("#tripEvents", trip.events, "Chưa có dữ liệu show/sự kiện");
+    }
+
+    function resetTripPanel() {
+      document.querySelector("#tripGroup").textContent = "Chưa rõ";
+      document.querySelector("#tripDate").textContent = "Chưa rõ";
+      document.querySelector("#tripLocation").textContent = "Chưa rõ";
+      document.querySelector("#tripDestination").textContent = "Đang tư vấn";
+      document.querySelector("#tripInterests").textContent = "Chưa rõ";
+
+      renderList("#tripPromotions", [], "Chưa có dữ liệu khuyến mãi");
+      renderList("#tripEvents", [], "Chưa có dữ liệu show/sự kiện");
+    }
+
+    async function sendMessage(text) {
+      const message = text.trim();
+      if (!message || state.busy) return;
+
+      addMessage("user", message);
+      promptInput.value = "";
+      resizeInput();
+      setBusy(true);
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message,
+            history: state.history
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Không gọi được chatbot.");
+        }
+
+        addMessage("assistant", data.answer || "Mình chưa nhận được câu trả lời phù hợp.");
+        updateTripPanel(data.trip);
+
+        state.history.push({
+          user: message,
+          assistant: data.answer || ""
+        });
+
+        if (data.provider || data.model) {
+          modelPill.textContent = `${data.provider || "provider"} · ${data.model || "model"}`;
+        }
+      } catch (error) {
+        addMessage("assistant", `Mình gặp lỗi khi tư vấn: ${error.message}`, true);
+      } finally {
+        setBusy(false);
+        promptInput.focus();
+      }
+    }
+
+    function resetChat() {
+      if (state.busy) return;
+
+      state.history = [];
+
+      messages.innerHTML = `
+        <section class="empty" id="emptyState">
+          <div>
+            <div class="empty-badge">VinWonders AI Tour Guide</div>
+            <h1>Hôm nay bạn muốn đi VinWonders thế nào?</h1>
+            <p>
+              Hãy cho mình biết bạn đi ngày nào, đi mấy người, xuất phát từ đâu
+              và thích trải nghiệm gì. Mình sẽ gợi ý điểm đến, ưu đãi, show và
+              lịch trình phù hợp.
+            </p>
+          </div>
+
+          <div class="quick-chips">
+            <button class="chip" data-send="Tôi thích trò chơi cảm giác mạnh, hãy tư vấn VinWonders phù hợp.">🎢 Cảm giác mạnh</button>
+            <button class="chip" data-send="Tôi muốn xem show buổi tối ở VinWonders, hãy gợi ý giúp tôi.">🎆 Show buổi tối</button>
+            <button class="chip" data-send="Tôi muốn tìm khuyến mãi vé VinWonders hiện tại.">🎟️ Khuyến mãi vé</button>
+            <button class="chip" data-send="Tôi muốn gợi ý các điểm check-in đẹp ở VinWonders.">📸 Check-in đẹp</button>
+          </div>
+
+          <div class="suggestions">
+            <button class="suggestion" data-send="Tôi muốn đi VinWonders vào cuối tuần này cùng nhóm bạn. Hãy gợi ý điểm vui chơi phù hợp, kiểm tra khuyến mãi hiện tại, sự kiện hoặc show đang có/sắp diễn ra, rồi đề xuất lịch trình vui chơi hợp lý trong ngày.">
+              <strong>🌤️ Tư vấn cuối tuần này</strong>
+              <span>Gợi ý điểm vui chơi, ưu đãi, show và lịch trình trong ngày.</span>
+            </button>
+
+            <button class="suggestion" data-send="Kiểm tra giúp tôi khuyến mãi vé VinWonders hiện tại.">
+              <strong>🎟️ Kiểm tra khuyến mãi vé</strong>
+              <span>Tìm ưu đãi phù hợp và nhắc kiểm tra kênh chính thức.</span>
+            </button>
+
+            <button class="suggestion" data-send="Gợi ý lịch trình vui chơi VinWonders trong ngày cho nhóm bạn.">
+              <strong>🗓️ Gợi ý lịch trình trong ngày</strong>
+              <span>Sắp xếp khung giờ ăn uống, vui chơi, check-in và xem show.</span>
+            </button>
+
+            <button class="suggestion" data-send="Đi VinWonders cùng nhóm bạn thì nên chơi gì? Ưu tiên trò cảm giác mạnh, check-in và hoạt động buổi tối.">
+              <strong>🧑‍🤝‍🧑 Đi nhóm bạn nên chơi gì?</strong>
+              <span>Ưu tiên trò chơi, ảnh đẹp, show và trải nghiệm sôi động.</span>
+            </button>
+          </div>
+        </section>
+      `;
+
+      bindSuggestionButtons();
+      resetTripPanel();
+      promptInput.focus();
+    }
+
+    function bindSuggestionButtons() {
+      for (const button of document.querySelectorAll(".suggestion, .chip")) {
+        button.addEventListener("click", () => {
+          sendMessage(button.dataset.send || button.textContent);
+        });
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendMessage(promptInput.value);
+    });
+
+    promptInput.addEventListener("input", resizeInput);
+
+    promptInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage(promptInput.value);
+      }
+    });
+
+    resetButton.addEventListener("click", resetChat);
+
+    bindSuggestionButtons();
+
+    fetch("/api/health")
+      .then(response => response.json())
+      .then(data => {
+        modelPill.textContent = `${data.provider} · ${data.model}`;
+      })
+      .catch(() => {
+        modelPill.textContent = "offline";
+      });
+  </script>
+</body>
+</html>

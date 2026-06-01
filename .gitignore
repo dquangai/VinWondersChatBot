@@ -1,0 +1,22 @@
+@"
+.env
+.env.local
+.env.*.local
+*.env
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.venv/
+venv/
+env/
+
+logs/
+*.log
+
+.DS_Store
+.vscode/
+.idea/
+"@ > .gitignore
