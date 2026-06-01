@@ -52,6 +52,7 @@ class ReActAgent:
             "group_type": None,
             "last_intent": None,
             "last_question": None,
+            "raw_latest_input": "",
         }
 
     def get_system_prompt(self) -> str:
@@ -192,6 +193,11 @@ Classify the user's request into one of these intents before choosing tools:
    - User asks what to prepare, what to bring, packing list, or trip checklist.
    - Use build_travel_checklist when destination/context is known.
 
+13. general_travel_outside_vin:
+   - User asks to travel to a non-VinWonders destination.
+   - Apologize that the agent is specialized for VinWonders, then ask the reason and desired constraints.
+   - Use plan_general_trip to suggest directions by case: budget, time, family, couple, friends, relaxation, adventure, food, weather.
+
 TOOL USE POLICY:
 - Use only listed tools.
 - Do not call tools that are not available.
@@ -202,6 +208,7 @@ TOOL USE POLICY:
 - For weather questions, use get_current_weather and mention the data source/time if available.
 - For budget, transportation, and checklist requests, use the specialized tools instead of answering generically.
 - Tool observations are structured JSON; read the fields and turn them into a polished consultant-style answer.
+- For non-VinWonders travel, do not reject abruptly. Ask why they want that destination and what they care about, then suggest suitable tour direction.
 
 DEMO DEFAULTS:
 - Demo defaults are only allowed if the application explicitly enables them.
@@ -269,19 +276,22 @@ IMPORTANT FORMAT RULES:
         """
         ReAct loop logic with clarification-first gate.
         """
+        latest_user_input = self._extract_latest_user_input(user_input)
+
         logger.log_event("AGENT_START", {
-            "input": user_input,
+            "input": latest_user_input,
             "model": getattr(self.llm, "model_name", "unknown")
         })
 
         self.last_trace = []
 
         # 0. Update context from the user's latest message first.
-        self._update_context_from_text(user_input)
+        self.session_context["raw_latest_input"] = latest_user_input
+        self._update_context_from_text(latest_user_input)
 
         # 1. Clarification-first gate.
         # If required info is missing, ask one question and DO NOT call tools.
-        clarification = self._maybe_ask_before_tools(user_input)
+        clarification = self._maybe_ask_before_tools(latest_user_input)
 
         if clarification:
             self.last_trace.append({
@@ -298,7 +308,7 @@ IMPORTANT FORMAT RULES:
 
             return clarification
 
-        direct_answer = self._maybe_direct_tool_answer(user_input)
+        direct_answer = self._maybe_direct_tool_answer(latest_user_input)
         if direct_answer:
             logger.log_event("AGENT_END", {
                 "steps": len(self.last_trace),
@@ -343,7 +353,7 @@ IMPORTANT FORMAT RULES:
                 trace_step["final_answer"] = final_answer
                 self.last_trace.append(trace_step)
 
-                self._update_context_from_text(user_input)
+                self._update_context_from_text(latest_user_input)
                 self._update_context_from_trace(self.last_trace)
 
                 logger.log_event("AGENT_END", {
@@ -579,6 +589,9 @@ Instructions:
         ]):
             return "checklist_preparation"
 
+        if self._looks_like_general_travel_outside_vin(lowered):
+            return "general_travel_outside_vin"
+
         if any(w in lowered for w in [
             "so sánh",
             "khác nhau",
@@ -656,10 +669,6 @@ Instructions:
             "event_show_check",
             "itinerary_planning",
             "comparison",
-            "weather_check",
-            "budget_planning",
-            "transportation_advice",
-            "checklist_preparation",
         ]:
             return last_intent
 
@@ -813,6 +822,79 @@ Instructions:
             and any(w in lowered for w in ["gợi ý", "tư vấn", "lịch trình", "khuyến mãi", "show"])
         )
 
+    def _looks_like_general_travel_outside_vin(self, lowered: str) -> bool:
+        """
+        Detect common non-VinWonders travel destinations.
+        """
+        if "vinwonders" in lowered or "vin wonders" in lowered:
+            return False
+
+        travel_words = [
+            "đi du lịch",
+            "du lịch",
+            "đi chơi",
+            "tour",
+            "lịch trình",
+            "nghỉ dưỡng",
+            "tư vấn",
+            "muốn đi",
+        ]
+        destinations = [
+            "đà lạt",
+            "da lat",
+            "sapa",
+            "sa pa",
+            "hạ long",
+            "ha long",
+            "đà nẵng",
+            "da nang",
+            "huế",
+            "hue",
+            "ninh bình",
+            "ninh binh",
+        ]
+
+        return any(word in lowered for word in travel_words) and any(
+            destination in lowered for destination in destinations
+        )
+
+    def _extract_general_destination_name(self, text: str) -> str:
+        lowered = str(text or "").lower()
+        destination_names = {
+            "đà lạt": "Đà Lạt",
+            "da lat": "Đà Lạt",
+            "sapa": "Sapa",
+            "sa pa": "Sapa",
+            "hạ long": "Hạ Long",
+            "ha long": "Hạ Long",
+            "đà nẵng": "Đà Nẵng",
+            "da nang": "Đà Nẵng",
+            "huế": "Huế",
+            "hue": "Huế",
+            "ninh bình": "Ninh Bình",
+            "ninh binh": "Ninh Bình",
+        }
+        for keyword, destination in destination_names.items():
+            if keyword in lowered:
+                return destination
+        return ""
+
+    def _extract_duration_days(self, text: str) -> Optional[int]:
+        lowered = str(text or "").lower()
+        match = re.search(r"(\d+)\s*(ngày|day)", lowered)
+        if match:
+            try:
+                return int(match.group(1))
+            except ValueError:
+                return None
+        if "cuối tuần" in lowered or "2 ngày 1 đêm" in lowered:
+            return 2
+        if "3 ngày 2 đêm" in lowered:
+            return 3
+        if "4 ngày 3 đêm" in lowered:
+            return 4
+        return None
+
     def _apply_demo_defaults(self) -> None:
         """
         Apply demo defaults when explicitly enabled.
@@ -847,6 +929,20 @@ Instructions:
             return json.dumps(content, ensure_ascii=False)
 
         return str(result)
+
+    def _extract_latest_user_input(self, text: str) -> str:
+        """
+        Backend may prepend conversation history. Intent routing should only use
+        the newest user message to avoid stale tools leaking into the next turn.
+        """
+        if not isinstance(text, str):
+            return ""
+
+        marker = "Người dùng mới nói:"
+        if marker in text:
+            return text.rsplit(marker, 1)[-1].strip()
+
+        return text.strip()
 
     def _safe_parse_json(self, args_str: str) -> dict:
         """
@@ -937,6 +1033,7 @@ Instructions:
             "budget_planning": "estimate_trip_budget",
             "transportation_advice": "get_transportation_advice",
             "checklist_preparation": "build_travel_checklist",
+            "general_travel_outside_vin": "plan_general_trip",
         }
 
         tool_name = direct_tools.get(intent)
@@ -1011,6 +1108,18 @@ Instructions:
             common["travel_date"] = ctx.get("travel_date") or "ngày bạn dự định đi"
             return clean(common)
 
+        if tool_name == "plan_general_trip":
+            return clean({
+                "destination": self._extract_general_destination_name(ctx.get("raw_latest_input", "")),
+                "departure": ctx.get("location"),
+                "group_size": ctx.get("group_size") or 1,
+                "travel_date": ctx.get("travel_date"),
+                "duration_days": self._extract_duration_days(ctx.get("raw_latest_input", "")) or 3,
+                "interests": ctx.get("interests", []),
+                "budget_level": ctx.get("budget") or "standard",
+                "user_message": ctx.get("raw_latest_input", ""),
+            })
+
         return clean(common)
 
     def _format_direct_tool_answer(
@@ -1037,11 +1146,17 @@ Instructions:
         if intent == "checklist_preparation":
             return self._format_checklist_answer(parsed)
 
+        if intent == "general_travel_outside_vin":
+            return self._format_general_trip_answer(parsed)
+
         return json.dumps(parsed, ensure_ascii=False)
 
     def _format_weather_answer(self, data: dict) -> str:
         if data.get("status") != "ok":
-            return data.get("message", "Mình chưa kiểm tra được thời tiết hiện tại.")
+            return (
+                "Mình đã nhận diện đây là câu hỏi thời tiết và gọi tool thời tiết, "
+                f"nhưng hiện chưa lấy được dữ liệu real-time. {data.get('message', '')}".strip()
+            )
 
         is_raining = data.get("is_raining")
         location = data.get("location", "địa điểm này")
@@ -1111,6 +1226,30 @@ Instructions:
             + "\n".join(sections)
             + f"\n\nGợi ý: {data.get('consultant_note', 'Bạn nên kiểm tra lại trước ngày đi.')}"
         )
+
+    def _format_general_trip_answer(self, data: dict) -> str:
+        destination = data.get("destination", "điểm bạn muốn đi")
+        apology = data.get("apology", "Mình xin lỗi, hiện mình tư vấn chuyên sâu nhất cho VinWonders.")
+        message = data.get("message", "Mình cần hiểu thêm mong muốn của bạn để gợi ý phù hợp.")
+        questions = "\n".join(
+            f"- {question}" for question in data.get("clarifying_questions", [])[:3]
+        )
+        cases = "\n".join(
+            f"- {item.get('case')}: {item.get('suggestion')} Mình cần biết: {item.get('question')}"
+            for item in data.get("case_suggestions", [])[:5]
+        )
+
+        answer = (
+            f"{apology}\n\n"
+            f"{message}\n\n"
+            f"Để mình tư vấn đúng cho chuyến {destination}, bạn cho mình biết thêm:\n"
+            f"{questions}"
+        )
+
+        if cases:
+            answer += f"\n\nNếu lý do của bạn là:\n{cases}"
+
+        return answer + "\n\nSau khi bạn trả lời, mình sẽ gợi ý tour/lịch trình phù hợp hơn."
 
     def _format_vnd(self, value: Any) -> str:
         try:
@@ -1434,4 +1573,5 @@ Remember:
             "group_type": None,
             "last_intent": None,
             "last_question": None,
+            "raw_latest_input": "",
         }

@@ -180,6 +180,100 @@ LOCATION_DESTINATION_HINTS = {
 }
 
 
+GENERAL_DESTINATION_CATALOG = {
+    "da_lat": {
+        "name": "Đà Lạt",
+        "aliases": ["đà lạt", "da lat"],
+        "style": "nghỉ dưỡng khí hậu mát, check-in, cafe, thiên nhiên",
+        "best_for": ["cặp đôi", "nhóm bạn", "gia đình thích lịch nhẹ"],
+        "highlights": ["hồ Xuân Hương", "đồi chè/cafe view cao", "thác hoặc khu thiên nhiên", "chợ đêm"],
+        "food": ["lẩu gà lá é", "bánh căn", "sữa đậu nành", "cafe đặc sản"],
+        "ideal_duration": "3 ngày 2 đêm",
+        "budget_per_day_vnd": (700000, 1500000),
+        "transport": [
+            "Từ TP.HCM có thể đi xe khách đêm hoặc máy bay tới sân bay Liên Khương.",
+            "Trong thành phố nên thuê xe máy nếu quen đường, hoặc dùng taxi/xe công nghệ cho nhóm gia đình.",
+        ],
+        "cautions": ["thời tiết thay đổi nhanh", "cuối tuần dễ kẹt xe ở điểm hot", "nên đặt phòng sớm mùa cao điểm"],
+    },
+    "sapa": {
+        "name": "Sapa",
+        "aliases": ["sapa", "sa pa"],
+        "style": "núi, săn mây, bản làng, nghỉ dưỡng",
+        "best_for": ["nhóm bạn", "cặp đôi", "người thích thiên nhiên"],
+        "highlights": ["Fansipan", "bản Cát Cát/Tả Van", "nhà thờ đá", "săn mây"],
+        "food": ["thắng cố", "cá hồi/cá tầm", "đồ nướng", "rau xứ lạnh"],
+        "ideal_duration": "3 ngày 2 đêm",
+        "budget_per_day_vnd": (800000, 1700000),
+        "transport": [
+            "Từ Hà Nội đi limousine/xe giường nằm hoặc tàu tới Lào Cai rồi nối xe lên Sapa.",
+            "Nên thuê xe địa phương nếu đi bản xa hoặc nhóm có trẻ nhỏ/người lớn tuổi.",
+        ],
+        "cautions": ["mùa mưa đường bản có thể trơn", "nên mang áo ấm", "kiểm tra thời tiết nếu muốn săn mây"],
+    },
+    "ha_long": {
+        "name": "Hạ Long",
+        "aliases": ["hạ long", "ha long", "vịnh hạ long", "vinh ha long"],
+        "style": "biển, du thuyền, nghỉ dưỡng, gia đình",
+        "best_for": ["gia đình", "nhóm bạn", "team building"],
+        "highlights": ["vịnh Hạ Long", "du thuyền/ngắm vịnh", "Sun World nếu phù hợp", "hải sản"],
+        "food": ["chả mực", "hải sản", "sam biển", "bún bề bề"],
+        "ideal_duration": "2 ngày 1 đêm hoặc 3 ngày 2 đêm",
+        "budget_per_day_vnd": (900000, 2200000),
+        "transport": [
+            "Từ Hà Nội đi cao tốc bằng xe riêng, limousine hoặc xe khách.",
+            "Nếu đặt du thuyền, nên xác nhận bến đón và giờ boarding trước.",
+        ],
+        "cautions": ["tour vịnh phụ thuộc thời tiết", "nên đặt dịch vụ uy tín", "mùa cao điểm giá phòng tăng nhanh"],
+    },
+    "da_nang": {
+        "name": "Đà Nẵng",
+        "aliases": ["đà nẵng", "da nang"],
+        "style": "biển, thành phố dễ đi, ẩm thực, kết hợp Hội An",
+        "best_for": ["gia đình", "nhóm bạn", "cặp đôi"],
+        "highlights": ["Mỹ Khê", "Bà Nà Hills", "Sơn Trà", "Hội An nếu có thêm thời gian"],
+        "food": ["mì Quảng", "bánh tráng cuốn thịt heo", "hải sản", "bún chả cá"],
+        "ideal_duration": "3 ngày 2 đêm",
+        "budget_per_day_vnd": (800000, 1800000),
+        "transport": [
+            "Di chuyển tới Đà Nẵng bằng máy bay/tàu/xe khách tùy nơi xuất phát.",
+            "Trong thành phố có thể dùng taxi/xe công nghệ, thuê xe máy hoặc thuê xe riêng nếu đi gia đình.",
+        ],
+        "cautions": ["mùa mưa biển động", "Bà Nà/Hội An cần tách khung thời gian rõ", "giờ cao điểm ven biển khá đông"],
+    },
+    "hue": {
+        "name": "Huế",
+        "aliases": ["huế", "hue"],
+        "style": "văn hóa, di sản, ẩm thực, lịch nhẹ",
+        "best_for": ["gia đình", "cặp đôi", "người thích văn hóa"],
+        "highlights": ["Đại Nội", "lăng vua", "sông Hương", "chùa Thiên Mụ"],
+        "food": ["bún bò Huế", "cơm hến", "bánh bèo/nậm/lọc", "chè Huế"],
+        "ideal_duration": "2 ngày 1 đêm hoặc 3 ngày 2 đêm",
+        "budget_per_day_vnd": (600000, 1400000),
+        "transport": [
+            "Có thể tới Huế bằng máy bay, tàu hỏa hoặc đi từ Đà Nẵng qua đèo Hải Vân.",
+            "Trong thành phố nên dùng taxi/xe công nghệ hoặc thuê xe theo tuyến lăng tẩm.",
+        ],
+        "cautions": ["mùa hè khá nóng", "cần giày dễ đi bộ", "nên tránh nhồi quá nhiều điểm di tích trong một ngày"],
+    },
+    "ninh_binh": {
+        "name": "Ninh Bình",
+        "aliases": ["ninh bình", "ninh binh", "tràng an", "trang an", "tam cốc", "tam coc"],
+        "style": "thiên nhiên, chèo thuyền, di sản, đi gần Hà Nội",
+        "best_for": ["gia đình", "nhóm bạn", "người thích cảnh quan"],
+        "highlights": ["Tràng An/Tam Cốc", "Hang Múa", "Bái Đính", "cố đô Hoa Lư"],
+        "food": ["cơm cháy", "dê núi", "ốc núi", "miến lươn"],
+        "ideal_duration": "1-2 ngày",
+        "budget_per_day_vnd": (500000, 1200000),
+        "transport": [
+            "Từ Hà Nội đi xe khách, limousine, tàu hoặc xe riêng đều thuận tiện.",
+            "Nên thuê xe máy/xe riêng tại địa phương nếu muốn ghép nhiều điểm.",
+        ],
+        "cautions": ["nắng gắt ở Hang Múa", "nên đặt vé thuyền sớm cuối tuần", "mang mũ/nước uống"],
+    },
+}
+
+
 def _json(payload: Dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
@@ -263,6 +357,101 @@ def _destination_key(destination: str = "", location: str = "") -> str:
 
 def _destination_info(destination: str = "", location: str = "") -> Dict[str, Any]:
     return DESTINATION_CATALOG[_destination_key(destination, location)]
+
+
+def _general_destination_info(destination: str) -> Optional[Dict[str, Any]]:
+    destination_text = _normalize(destination)
+    for info in GENERAL_DESTINATION_CATALOG.values():
+        if any(alias in destination_text for alias in info["aliases"]):
+            return info
+    return None
+
+
+def _infer_general_travel_concerns(
+    text: str = "",
+    interests: Optional[List[str]] = None,
+    budget_level: str = "",
+    duration_days: Any = None,
+) -> List[str]:
+    source = " ".join([_normalize(text), _normalize(budget_level), " ".join(interests or []).lower()])
+    concerns = []
+
+    concern_keywords = {
+        "budget": ["ngân sách", "tiết kiệm", "giá rẻ", "rẻ", "chi phí", "bao nhiêu tiền", "budget"],
+        "time": ["ít ngày", "ngắn ngày", "cuối tuần", "1 ngày", "2 ngày", "không có nhiều thời gian", "time"],
+        "family": ["gia đình", "trẻ nhỏ", "con nhỏ", "người lớn tuổi", "ba mẹ", "bố mẹ"],
+        "couple": ["cặp đôi", "người yêu", "hẹn hò", "kỷ niệm"],
+        "friends": ["nhóm bạn", "bạn bè", "team", "đông người"],
+        "relax": ["nghỉ dưỡng", "chill", "thư giãn", "resort", "nghỉ ngơi"],
+        "adventure": ["khám phá", "trekking", "mạo hiểm", "hoạt động ngoài trời", "trải nghiệm"],
+        "food": ["ăn uống", "ẩm thực", "món ngon", "food"],
+        "weather": ["mưa", "thời tiết", "nắng", "lạnh", "săn mây"],
+    }
+
+    for concern, keywords in concern_keywords.items():
+        if any(keyword in source for keyword in keywords):
+            concerns.append(concern)
+
+    try:
+        if int(duration_days or 0) <= 2 and int(duration_days or 0) > 0:
+            concerns.append("time")
+    except (TypeError, ValueError):
+        pass
+
+    return list(dict.fromkeys(concerns))
+
+
+def _general_case_suggestions(destination_name: str, concerns: List[str]) -> List[Dict[str, Any]]:
+    suggestions = {
+        "budget": {
+            "case": "Vấn đề ngân sách",
+            "suggestion": f"Ưu tiên tour/plan tiết kiệm cho {destination_name}: đi ngày thường, chọn homestay/khách sạn vừa phải, ghép xe hoặc combo vé + phòng nếu có.",
+            "question": "Bạn muốn giữ ngân sách khoảng bao nhiêu mỗi người?",
+        },
+        "time": {
+            "case": "Vấn đề thời gian",
+            "suggestion": f"Nếu ít thời gian, nên chọn lịch trình ngắn ngày tại {destination_name}, tập trung 2-3 điểm chính thay vì đi quá dày.",
+            "question": "Bạn có bao nhiêu ngày: 1 ngày, 2 ngày 1 đêm hay 3 ngày 2 đêm?",
+        },
+        "family": {
+            "case": "Đi gia đình/trẻ nhỏ",
+            "suggestion": "Nên chọn lịch nhẹ, ít di chuyển, có điểm nghỉ giữa chặng, ưu tiên khách sạn gần trung tâm và phương tiện riêng.",
+            "question": "Trong nhóm có trẻ nhỏ hoặc người lớn tuổi không?",
+        },
+        "couple": {
+            "case": "Đi cặp đôi",
+            "suggestion": "Nên ưu tiên lịch chill, điểm check-in đẹp, cafe/ăn tối có không gian riêng và không nhồi quá nhiều điểm.",
+            "question": "Bạn muốn chuyến đi thiên về lãng mạn, nghỉ dưỡng hay khám phá?",
+        },
+        "friends": {
+            "case": "Đi nhóm bạn",
+            "suggestion": "Có thể chọn lịch năng động hơn: check-in, ăn uống, hoạt động buổi tối và chia chi phí theo nhóm.",
+            "question": "Nhóm bạn thích vui chơi sôi động, ăn uống hay khám phá thiên nhiên hơn?",
+        },
+        "relax": {
+            "case": "Muốn nghỉ dưỡng",
+            "suggestion": "Nên giảm số điểm tham quan, chọn nơi ở tốt hơn một chút và chừa nhiều thời gian nghỉ/cafe/spa.",
+            "question": "Bạn muốn nghỉ dưỡng yên tĩnh hay vẫn có vài điểm check-in nhẹ?",
+        },
+        "adventure": {
+            "case": "Muốn khám phá/trải nghiệm",
+            "suggestion": "Nên chọn tour có hoạt động ngoài trời, nhưng cần kiểm tra thời tiết và sức khỏe nhóm trước khi chốt.",
+            "question": "Bạn có ưu tiên trekking, biển, núi, hoạt động nước hay trải nghiệm địa phương?",
+        },
+        "food": {
+            "case": "Ưu tiên ẩm thực",
+            "suggestion": "Có thể thiết kế lịch theo bản đồ món ăn: mỗi buổi chọn một khu ăn uống, tránh di chuyển vòng quanh quá nhiều.",
+            "question": "Bạn muốn ăn đặc sản địa phương, quán nổi tiếng hay quán giá hợp lý?",
+        },
+        "weather": {
+            "case": "Lo thời tiết",
+            "suggestion": "Nên có phương án dự phòng trong nhà, lịch linh hoạt theo buổi và kiểm tra thời tiết sát ngày đi.",
+            "question": "Bạn đi vào ngày nào để mình cân nhắc rủi ro mưa/nắng/lạnh?",
+        },
+    }
+
+    ordered = concerns or ["budget", "time", "family", "relax"]
+    return [suggestions[key] for key in ordered if key in suggestions]
 
 
 def _infer_group_type(group_size: Any = None, group_type: str = "", interests: Optional[List[str]] = None) -> str:
@@ -837,6 +1026,89 @@ def build_itinerary(
     })
 
 
+def plan_general_trip(
+    destination: str,
+    departure: str = "",
+    group_size: int = 1,
+    travel_date: str = "",
+    duration_days: int = 3,
+    interests: list = None,
+    budget_level: str = "standard",
+    user_message: str = "",
+) -> str:
+    """Xử lý yêu cầu du lịch ngoài VinWonders theo hướng hỏi nhu cầu trước."""
+    info = _general_destination_info(destination)
+    interest_list = _as_list(interests, [])
+    size = _safe_int(group_size, 1)
+    days = _safe_int(duration_days, 3)
+    concerns = _infer_general_travel_concerns(user_message, interest_list, budget_level, duration_days)
+
+    if not info:
+        return _json({
+            "status": "outside_vinwonders_need_clarification",
+            "scope": "outside_vinwonders",
+            "destination": destination,
+            "apology": "Mình xin lỗi, hiện mình tư vấn chuyên sâu nhất cho VinWonders.",
+            "message": "Tuy vậy mình vẫn có thể hỗ trợ định hướng chuyến đi nếu bạn cho mình biết lý do và mong muốn chính.",
+            "clarifying_questions": [
+                "Bạn muốn đổi sang điểm này vì ngân sách, thời gian, khoảng cách, thời tiết hay sở thích trải nghiệm?",
+                "Bạn đi mấy người, đi mấy ngày và xuất phát từ đâu?",
+                "Bạn muốn ưu tiên nghỉ dưỡng, vui chơi, ẩm thực, check-in hay khám phá?",
+            ],
+            "case_suggestions": _general_case_suggestions(destination or "điểm bạn muốn đi", concerns),
+            "supported_destinations": [item["name"] for item in GENERAL_DESTINATION_CATALOG.values()],
+        })
+
+    min_day, max_day = info["budget_per_day_vnd"]
+    if _normalize(budget_level) in {"tiết kiệm", "budget", "low"}:
+        min_day = int(min_day * 0.8)
+        max_day = int(max_day * 0.85)
+    elif _normalize(budget_level) in {"cao cấp", "premium", "thoải mái"}:
+        min_day = int(min_day * 1.25)
+        max_day = int(max_day * 1.6)
+
+    return _json({
+        "status": "outside_vinwonders_need_clarification",
+        "scope": "outside_vinwonders",
+        "apology": "Mình xin lỗi, hiện mình tư vấn chuyên sâu nhất cho VinWonders.",
+        "message": (
+            f"Nếu bạn muốn đi {info['name']}, mình cần hiểu lý do và mong muốn chính để gợi ý đúng hơn."
+        ),
+        "destination": info["name"],
+        "departure": departure or "chưa rõ",
+        "group_size": size,
+        "travel_date": travel_date or "chưa rõ",
+        "duration_days": days,
+        "style": info["style"],
+        "best_for": info["best_for"],
+        "interests": interest_list,
+        "clarifying_questions": [
+            "Bạn chọn điểm này vì ngân sách, thời gian, khoảng cách, thời tiết hay sở thích riêng?",
+            "Bạn muốn đi mấy ngày và khoảng ngân sách mỗi người là bao nhiêu?",
+            "Nhóm đi cùng là gia đình, cặp đôi, nhóm bạn hay có trẻ nhỏ/người lớn tuổi?",
+        ],
+        "case_suggestions": _general_case_suggestions(info["name"], concerns),
+        "quick_direction": {
+            "highlights": info["highlights"][:4],
+            "food_suggestions": info["food"][:4],
+            "transport": info["transport"][:2],
+            "ideal_duration": info["ideal_duration"],
+        },
+        "budget_reference_vnd": {
+            "per_person_total_min": min_day * days,
+            "per_person_total_max": max_day * days,
+            "group_total_min": min_day * days * size,
+            "group_total_max": max_day * days * size,
+            "note": "Ước tính tham khảo cho ăn uống, di chuyển nội địa/ngày và lưu trú phổ thông; chưa thay thế giá vé máy bay/khách sạn real-time.",
+        },
+        "cautions": info["cautions"],
+        "consultant_note": (
+            "Không chốt tour ngay khi thiếu nhu cầu. Hãy hỏi lý do đi, ràng buộc ngân sách/thời gian "
+            "và kiểu trải nghiệm trước, rồi mới đề xuất tour phù hợp."
+        ),
+    })
+
+
 vinwonders_tools = [
     {
         "name": "get_user_preferences",
@@ -888,6 +1160,11 @@ vinwonders_tools = [
         "description": "Kiểm tra thời tiết hiện tại tại một địa điểm, ví dụ người dùng hỏi Hà Nội đang mưa không.",
         "parameters": ["location"],
     },
+    {
+        "name": "plan_general_trip",
+        "description": "Tư vấn chuyến du lịch ngoài hệ VinWonders cho các điểm phổ biến như Đà Lạt, Sapa, Hạ Long, Đà Nẵng, Huế, Ninh Bình.",
+        "parameters": ["destination", "departure", "group_size", "travel_date", "duration_days", "interests", "budget_level"],
+    },
 ]
 
 
@@ -902,6 +1179,7 @@ TOOL_FUNCTIONS = {
     "build_travel_checklist": build_travel_checklist,
     "build_itinerary": build_itinerary,
     "get_current_weather": get_current_weather,
+    "plan_general_trip": plan_general_trip,
 }
 
 
