@@ -1,8 +1,5 @@
 import json
-<<<<<<< HEAD
 
-def get_user_preferences(group_size: int, travel_date: str, location: str, interests: list) -> str:
-=======
 import urllib.parse
 import urllib.request
 
@@ -153,7 +150,6 @@ def get_user_preferences(
     location: str = DEMO_DEFAULTS["location"],
     interests: list = None,
 ) -> str:
->>>>>>> origin/main
     """Xác định nhu cầu của người dùng gồm số lượng người, ngày đi, vị trí xuất phát và sở thích vui chơi."""
     return f"""Người dùng đi nhóm {group_size} người vào {travel_date}, xuất phát từ {location}. 
 Nhóm thích: {', '.join(interests)}."""
@@ -233,12 +229,8 @@ def execute_vinwonders_tool(tool_name: str, args_dict: dict) -> str:
     elif tool_name == "check_events_and_shows":
         return check_events_and_shows(**args_dict)
     elif tool_name == "build_itinerary":
-<<<<<<< HEAD
         return build_itinerary(**args_dict)
-=======
-        return _call_with_supported_args(build_itinerary, args_dict)
     elif tool_name == "get_current_weather":
-        return _call_with_supported_args(get_current_weather, args_dict)
->>>>>>> origin/main
+        return get_current_weather(**args_dict)
     else:
         return f"Tool {tool_name} not found."

@@ -28,10 +28,6 @@ class ReActAgent:
         return f"""You are an intelligent travel assistant for VinWonders. You have access to the following tools:
 {tool_descriptions}
 
-<<<<<<< HEAD
-Use the following format for your responses:
-Thought: your line of reasoning.
-=======
 Current known user context:
 {context_text}
 
@@ -191,7 +187,6 @@ REACT FORMAT:
 Use this format:
 
 Thought: brief reasoning.
->>>>>>> origin/main
 Action: tool_name({{"param1": "value1", "param2": ["list1", "list2"]}})
 Observation: result of the tool call.
 ... (repeat Thought/Action/Observation until you have enough information)
@@ -267,11 +262,6 @@ IMPORTANT:
                 return result.strip()
             
             steps += 1
-<<<<<<< HEAD
-            
-        logger.log_event("AGENT_END", {"steps": steps, "status": "max_steps_reached"})
-        return "Agent reached maximum steps without a final answer."
-=======
 
         logger.log_event("AGENT_END", {
             "steps": steps,
@@ -687,7 +677,6 @@ Instructions:
                 "cleaned_args": cleaned
             })
             return {}
->>>>>>> origin/main
 
     def _execute_tool(self, tool_name: str, args_dict: dict) -> str:
         """
@@ -697,9 +686,6 @@ Instructions:
         try:
             return execute_vinwonders_tool(tool_name, args_dict)
         except Exception as e:
-<<<<<<< HEAD
-            return f"Error executing tool {tool_name}: {str(e)}"
-=======
             logger.log_event("TOOL_ERROR", {
                 "tool": tool_name,
                 "args": args_dict,
@@ -1048,4 +1034,3 @@ Remember:
             "last_intent": None,
             "last_question": None,
         }
->>>>>>> origin/main
