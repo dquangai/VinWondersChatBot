@@ -162,10 +162,11 @@ Classify the user's request into one of these intents before choosing tools:
    - User wants complete planning including destination, promotion, show/event, and itinerary.
    - Use full flow only after enough information is known:
      get_user_preferences -> search_vinwonders_destinations -> check_current_promotions -> check_events_and_shows -> build_itinerary.
+   - If useful, also use estimate_trip_budget, get_transportation_advice, build_travel_checklist, or get_current_weather.
 
 7. comparison:
    - User asks to compare destinations/options.
-   - Use search_vinwonders_destinations only when enough preference context is known.
+   - Use compare_vinwonders_options when enough preference context is known.
    - Provide pros, cons, and best-fit recommendation.
 
 8. follow_up:
@@ -178,6 +179,19 @@ Classify the user's request into one of these intents before choosing tools:
    - Use get_current_weather when location context is available.
    - If location is missing, ask one short question for the location.
 
+10. budget_planning:
+   - User asks about budget, estimated cost, spending plan, or how much money to prepare.
+   - Use estimate_trip_budget when destination and group size are known.
+   - Mention that ticket prices must be checked on official channels.
+
+11. transportation_advice:
+   - User asks how to get there, transportation, route, shuttle, car, bus, flight, pickup/dropoff.
+   - Use get_transportation_advice when departure location and destination are known.
+
+12. checklist_preparation:
+   - User asks what to prepare, what to bring, packing list, or trip checklist.
+   - Use build_travel_checklist when destination/context is known.
+
 TOOL USE POLICY:
 - Use only listed tools.
 - Do not call tools that are not available.
@@ -186,6 +200,8 @@ TOOL USE POLICY:
 - For follow-ups, avoid repeating unnecessary tools.
 - If a tool returns empty or uncertain data, explain that clearly and give safe next steps.
 - For weather questions, use get_current_weather and mention the data source/time if available.
+- For budget, transportation, and checklist requests, use the specialized tools instead of answering generically.
+- Tool observations are structured JSON; read the fields and turn them into a polished consultant-style answer.
 
 DEMO DEFAULTS:
 - Demo defaults are only allowed if the application explicitly enables them.
@@ -512,8 +528,48 @@ Instructions:
             "show",
             "sự kiện",
             "điểm vui chơi",
+            "ngân sách",
+            "chi phí",
+            "di chuyển",
         ]):
             return "full_trip_planning"
+
+        if any(w in lowered for w in [
+            "ngân sách",
+            "chi phí",
+            "bao nhiêu tiền",
+            "tốn bao nhiêu",
+            "dự trù",
+            "budget",
+            "ước tính",
+        ]):
+            return "budget_planning"
+
+        if any(w in lowered for w in [
+            "di chuyển",
+            "đi bằng gì",
+            "bằng gì",
+            "đường đi",
+            "xe đưa đón",
+            "shuttle",
+            "taxi",
+            "grab",
+            "máy bay",
+            "xe khách",
+            "route",
+        ]):
+            return "transportation_advice"
+
+        if any(w in lowered for w in [
+            "mang gì",
+            "chuẩn bị gì",
+            "checklist",
+            "packing",
+            "cần chuẩn bị",
+            "đồ cần mang",
+            "hành lý",
+        ]):
+            return "checklist_preparation"
 
         if any(w in lowered for w in [
             "so sánh",
@@ -593,6 +649,9 @@ Instructions:
             "itinerary_planning",
             "comparison",
             "weather_check",
+            "budget_planning",
+            "transportation_advice",
+            "checklist_preparation",
         ]:
             return last_intent
 
@@ -658,6 +717,22 @@ Instructions:
         elif intent == "weather_check":
             if empty("location"):
                 missing.append("location")
+
+        elif intent == "budget_planning":
+            if empty("destination"):
+                missing.append("destination")
+            if empty("group_size") and empty("group_type"):
+                missing.append("group")
+
+        elif intent == "transportation_advice":
+            if empty("destination"):
+                missing.append("destination")
+            if empty("location"):
+                missing.append("location")
+
+        elif intent == "checklist_preparation":
+            if empty("destination"):
+                missing.append("destination")
 
         return missing
 
