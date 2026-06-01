@@ -173,6 +173,11 @@ Classify the user's request into one of these intents before choosing tools:
    - Use known context.
    - Only call tools if new factual/current data is needed.
 
+9. weather_check:
+   - User asks about current weather, rain, sun, temperature, or whether a location is raining.
+   - Use get_current_weather when location context is available.
+   - If location is missing, ask one short question for the location.
+
 TOOL USE POLICY:
 - Use only listed tools.
 - Do not call tools that are not available.
@@ -180,6 +185,7 @@ TOOL USE POLICY:
 - For partial requests, call only the relevant tool(s).
 - For follow-ups, avoid repeating unnecessary tools.
 - If a tool returns empty or uncertain data, explain that clearly and give safe next steps.
+- For weather questions, use get_current_weather and mention the data source/time if available.
 
 DEMO DEFAULTS:
 - Demo defaults are only allowed if the application explicitly enables them.
@@ -470,6 +476,46 @@ Instructions:
             return "greeting"
 
         if any(w in lowered for w in [
+            "thời tiết",
+            "thoi tiet",
+            "trời mưa",
+            "troi mua",
+            "đang mưa",
+            "dang mua",
+            "có mưa",
+            "co mua",
+            "mưa không",
+            "mua khong",
+            "mưa k",
+            "mua k",
+            "nắng không",
+            "nang khong",
+            "nhiệt độ",
+            "nhiet do",
+        ]):
+            return "weather_check"
+
+        full_plan_keywords = [
+            "tư vấn",
+            "đi vinwonders",
+            "muốn đi vinwonders",
+            "lên kế hoạch",
+            "đề xuất chuyến đi",
+            "gợi ý chuyến đi",
+            "gợi ý điểm vui chơi",
+        ]
+
+        if any(w in lowered for w in full_plan_keywords) and any(w in lowered for w in [
+            "lịch trình",
+            "khuyến mãi",
+            "ưu đãi",
+            "show",
+            "sự kiện",
+            "điểm vui chơi",
+        ]):
+            return "full_trip_planning"
+
+        if any(w in lowered for w in [
             "so sánh",
             "khác nhau",
             "nên chọn cái nào",
@@ -546,6 +592,7 @@ Instructions:
             "event_show_check",
             "itinerary_planning",
             "comparison",
+            "weather_check",
         ]:
             return last_intent
 
@@ -607,6 +654,10 @@ Instructions:
                 missing.append("location")
             if empty("interests"):
                 missing.append("interests")
+
+        elif intent == "weather_check":
+            if empty("location"):
+                missing.append("location")
 
         return missing
 
@@ -884,6 +935,7 @@ Remember:
                 "check_current_promotions",
                 "check_events_and_shows",
                 "build_itinerary",
+                "get_current_weather",
             ]:
                 enriched.setdefault("date", enriched.get("travel_date"))
 
