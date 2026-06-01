@@ -176,6 +176,17 @@ def check_events_and_shows(destination: str, travel_date: str) -> str:
 - Hoạt động check-in và mini game theo khung giờ.
 - Các chương trình biểu diễn hoặc sự kiện mùa hè nếu đang áp dụng."""
 
+def get_dining_options(destination: str) -> str:
+    """Tra cứu thông tin nhà hàng, địa điểm ăn uống tại khu vực."""
+    if "phú quốc" in destination.lower() or "phu quoc" in destination.lower():
+        return "VinWonders Phú Quốc có các nhà hàng như The Gateway (Buffet), Oasis Snack (Đồ ăn nhanh), Magic of Giza (Bento). Khuyên dùng mua voucher ăn uống trực tuyến để tiết kiệm."
+    elif "nha trang" in destination.lower():
+        return "VinWonders Nha Trang có nhà hàng Coral (Buffet), Lotteria (Đồ ăn nhanh) và khu ẩm thực Chợ Quê. Bạn có thể chọn nhà hàng phù hợp theo sở thích."
+    elif "nam hội an" in destination.lower() or "nam hoi an" in destination.lower():
+        return "VinWonders Nam Hội An có nhà hàng Chợ Quê (Đặc sản 3 miền), Deliland (Buffet quốc tế) và Lotteria. Nên đặt trước voucher ăn uống để được giá tốt."
+    else:
+        return f"Tại {destination}, có nhiều nhà hàng ẩm thực đa dạng từ đồ ăn nhanh đến buffet. Hãy kiểm tra ứng dụng VinWonders để xem chi tiết nhé."
+
 def build_itinerary(destination: str, preferences: list, promotions: list, events: list) -> str:
     """Xây dựng lịch trình vui chơi trong ngày dựa trên điểm đến, sở thích, khuyến mãi và sự kiện."""
     return f"""Lịch trình đề xuất tại {destination}:
@@ -213,6 +224,11 @@ vinwonders_tools = [
         "parameters": ["destination", "preferences", "promotions", "events"]
     },
     {
+        "name": "get_dining_options",
+        "description": "Tra cứu thông tin nhà hàng, địa điểm ăn uống tại khu vực.",
+        "parameters": ["destination"]
+    },
+    {
         "name": "get_current_weather",
         "description": "Kiểm tra thời tiết hiện tại tại một địa điểm, ví dụ người dùng hỏi Hà Nội đang mưa không.",
         "parameters": ["location"]
@@ -230,6 +246,8 @@ def execute_vinwonders_tool(tool_name: str, args_dict: dict) -> str:
         return check_events_and_shows(**args_dict)
     elif tool_name == "build_itinerary":
         return build_itinerary(**args_dict)
+    elif tool_name == "get_dining_options":
+        return get_dining_options(**args_dict)
     elif tool_name == "get_current_weather":
         return get_current_weather(**args_dict)
     else:

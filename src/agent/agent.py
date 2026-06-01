@@ -105,23 +105,27 @@ Classify the user's request into one of these intents before choosing tools:
    - User asks about show, performance, event, fireworks, parade, evening activities.
    - Use check_events_and_shows only when destination/date context is sufficient.
 
-5. itinerary_planning:
+5. dining_check:
+   - User asks about food, restaurants, buffet, or what to eat.
+   - Use get_dining_options only when destination context is sufficient.
+
+6. itinerary_planning:
    - User asks for schedule, route, timeline, one-day plan, or itinerary.
    - Use get_user_preferences if useful.
    - If destination is unknown, use search_vinwonders_destinations first.
    - Then use build_itinerary.
 
-6. full_trip_planning:
+7. full_trip_planning:
    - User wants complete planning including destination, promotion, show/event, and itinerary.
    - Use full flow only after enough information is known:
      get_user_preferences -> search_vinwonders_destinations -> check_current_promotions -> check_events_and_shows -> build_itinerary.
 
-7. comparison:
+8. comparison:
    - User asks to compare destinations/options.
    - Use search_vinwonders_destinations only when enough preference context is known.
    - Provide pros, cons, and best-fit recommendation.
 
-8. follow_up:
+9. follow_up:
    - User asks a follow-up based on the previous answer.
    - Use known context.
    - Only call tools if new factual/current data is needed.
@@ -428,6 +432,18 @@ Instructions:
             return "event_show_check"
 
         if any(w in lowered for w in [
+            "ăn uống",
+            "nhà hàng",
+            "ẩm thực",
+            "ăn gì",
+            "ăn trưa",
+            "ăn tối",
+            "buffet",
+            "quán ăn",
+        ]):
+            return "dining_check"
+
+        if any(w in lowered for w in [
             "lịch trình",
             "kế hoạch",
             "timeline",
@@ -469,6 +485,7 @@ Instructions:
             "destination_recommendation",
             "promotion_check",
             "event_show_check",
+            "dining_check",
             "itinerary_planning",
             "comparison",
             "weather_check",
@@ -517,6 +534,10 @@ Instructions:
                 missing.append("destination")
             if empty("travel_date"):
                 missing.append("travel_date")
+
+        elif intent == "dining_check":
+            if empty("destination"):
+                missing.append("destination")
 
         elif intent == "itinerary_planning":
             if empty("destination"):
