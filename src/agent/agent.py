@@ -298,6 +298,14 @@ IMPORTANT FORMAT RULES:
 
             return clarification
 
+        direct_answer = self._maybe_direct_tool_answer(user_input)
+        if direct_answer:
+            logger.log_event("AGENT_END", {
+                "steps": len(self.last_trace),
+                "status": "direct_tool_answer"
+            })
+            return direct_answer
+
         current_prompt = self._build_initial_prompt(user_input)
         steps = 0
         system_prompt = self.get_system_prompt()
@@ -916,6 +924,199 @@ Instructions:
             "status": "error",
             "message": message
         }, ensure_ascii=False)
+
+    def _maybe_direct_tool_answer(self, user_input: str) -> Optional[str]:
+        """
+        Deterministic shortcut for specialized travel intents.
+        This prevents the LLM from answering "I cannot access data" before using a tool.
+        """
+        intent = self.session_context.get("last_intent") or self._classify_intent_lightweight(user_input)
+
+        direct_tools = {
+            "weather_check": "get_current_weather",
+            "budget_planning": "estimate_trip_budget",
+            "transportation_advice": "get_transportation_advice",
+            "checklist_preparation": "build_travel_checklist",
+        }
+
+        tool_name = direct_tools.get(intent)
+        if not tool_name:
+            return None
+
+        args = self._direct_tool_args(tool_name)
+        observation = self._execute_tool(tool_name, args)
+        parsed = self._try_parse_json(observation)
+
+        self.last_trace.append({
+            "step": 1,
+            "type": "tool",
+            "tool": tool_name,
+            "arguments": args,
+            "observation": observation,
+            "direct": True,
+        })
+
+        self._update_context_from_args(args)
+        self._update_context_from_observation(tool_name, observation)
+
+        answer = self._format_direct_tool_answer(intent, parsed, observation)
+        self.last_trace.append({
+            "step": 2,
+            "type": "final",
+            "final_answer": answer,
+            "direct": True,
+        })
+        return answer
+
+    def _direct_tool_args(self, tool_name: str) -> dict:
+        """
+        Build deterministic tool arguments from session context.
+        """
+        def clean(args: dict) -> dict:
+            return {
+                key: value
+                for key, value in args.items()
+                if value not in [None, "", []]
+            }
+
+        ctx = self.session_context
+        common = {
+            "destination": ctx.get("destination"),
+            "location": ctx.get("location"),
+            "group_size": ctx.get("group_size"),
+            "travel_date": ctx.get("travel_date"),
+            "group_type": ctx.get("group_type"),
+            "interests": ctx.get("interests", []),
+        }
+
+        if tool_name == "get_current_weather":
+            return clean({"location": ctx.get("location")})
+
+        if tool_name == "estimate_trip_budget":
+            return clean({
+                "destination": ctx.get("destination"),
+                "group_size": ctx.get("group_size") or 1,
+                "budget_level": ctx.get("budget") or "standard",
+                "include_transport": True,
+            })
+
+        if tool_name == "get_transportation_advice":
+            return clean({
+                "destination": ctx.get("destination"),
+                "location": ctx.get("location"),
+                "group_size": ctx.get("group_size") or 1,
+            })
+
+        if tool_name == "build_travel_checklist":
+            common["travel_date"] = ctx.get("travel_date") or "ngày bạn dự định đi"
+            return clean(common)
+
+        return clean(common)
+
+    def _format_direct_tool_answer(
+        self,
+        intent: str,
+        parsed: Optional[Any],
+        raw_observation: str,
+    ) -> str:
+        """
+        Convert structured tool JSON into a concise Vietnamese consultant answer.
+        """
+        if not isinstance(parsed, dict):
+            return str(raw_observation)
+
+        if intent == "weather_check":
+            return self._format_weather_answer(parsed)
+
+        if intent == "budget_planning":
+            return self._format_budget_answer(parsed)
+
+        if intent == "transportation_advice":
+            return self._format_transportation_answer(parsed)
+
+        if intent == "checklist_preparation":
+            return self._format_checklist_answer(parsed)
+
+        return json.dumps(parsed, ensure_ascii=False)
+
+    def _format_weather_answer(self, data: dict) -> str:
+        if data.get("status") != "ok":
+            return data.get("message", "Mình chưa kiểm tra được thời tiết hiện tại.")
+
+        is_raining = data.get("is_raining")
+        location = data.get("location", "địa điểm này")
+        weather = data.get("weather", "không rõ")
+        time = data.get("time", "thời điểm cập nhật")
+        temperature = data.get("temperature_c")
+        humidity = data.get("humidity_percent")
+        precipitation = data.get("precipitation_mm")
+        source = data.get("source", "nguồn thời tiết")
+
+        rain_text = "có dấu hiệu mưa/dông" if is_raining else "chưa ghi nhận mưa"
+        return (
+            f"Theo {source} lúc {time}, {location} hiện {rain_text}: {weather}. "
+            f"Nhiệt độ khoảng {temperature}°C, độ ẩm {humidity}%, lượng mưa ghi nhận {precipitation} mm.\n\n"
+            f"Gợi ý: {data.get('advice', 'Bạn nên kiểm tra lại thời tiết ngay trước khi đi.')}"
+        )
+
+    def _format_budget_answer(self, data: dict) -> str:
+        if data.get("status") not in {"planning_estimate", "ok"}:
+            return data.get("message", "Mình chưa ước tính được ngân sách.")
+
+        estimate = data.get("estimate_excluding_tickets_vnd", {})
+        min_cost = self._format_vnd(estimate.get("min"))
+        max_cost = self._format_vnd(estimate.get("max"))
+        destination = data.get("destination", "VinWonders")
+        group_size = data.get("group_size", "nhóm")
+
+        tips = "\n".join(f"- {tip}" for tip in data.get("saving_tips", [])[:3])
+        return (
+            f"Với {group_size} người đi {destination}, ngân sách tham khảo chưa gồm vé vào cổng khoảng "
+            f"{min_cost} - {max_cost}.\n\n"
+            f"Lưu ý: {data.get('ticket_note', 'Giá vé cần kiểm tra trên kênh chính thức.')}\n\n"
+            f"Mẹo tiết kiệm:\n{tips}"
+        )
+
+    def _format_transportation_answer(self, data: dict) -> str:
+        if data.get("status") != "ok":
+            return data.get("message", "Mình chưa tư vấn được phương án di chuyển.")
+
+        routes = []
+        for route in data.get("routes", [])[:3]:
+            routes.append(
+                f"- {route.get('mode')}: hợp với {route.get('best_for')}. "
+                f"Mẹo: {route.get('tip')}"
+            )
+
+        return (
+            f"Từ {data.get('from', 'nơi xuất phát')} đi {data.get('destination', 'VinWonders')}, "
+            "bạn có thể chọn:\n"
+            + "\n".join(routes)
+            + f"\n\nGợi ý: {data.get('consultant_note', 'Nên chốt chiều về trước khi đi.')}"
+        )
+
+    def _format_checklist_answer(self, data: dict) -> str:
+        if data.get("status") != "ok":
+            return data.get("message", "Mình chưa tạo được checklist.")
+
+        travel_date = data.get("travel_date") or "ngày bạn dự định đi"
+        sections = []
+        for section in data.get("checklist", []):
+            items = ", ".join(section.get("items", []))
+            sections.append(f"- {section.get('category')}: {items}")
+
+        return (
+            f"Checklist chuẩn bị cho {data.get('destination', 'VinWonders')} "
+            f"({travel_date}):\n"
+            + "\n".join(sections)
+            + f"\n\nGợi ý: {data.get('consultant_note', 'Bạn nên kiểm tra lại trước ngày đi.')}"
+        )
+
+    def _format_vnd(self, value: Any) -> str:
+        try:
+            return f"{int(value):,} VND".replace(",", ".")
+        except (TypeError, ValueError):
+            return "chưa rõ"
 
     def _compact_observation(self, observation: Any, max_chars: int = 3500) -> str:
         """

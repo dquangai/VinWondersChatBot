@@ -63,3 +63,42 @@ def test_agent_classifies_professional_travel_intents():
         agent.reset_context()
         agent._update_context_from_text(text)
         assert agent._classify_intent_lightweight(text) == expected
+
+
+def test_weather_question_uses_direct_tool(monkeypatch):
+    agent = ReActAgent(FakeLLM(), vinwonders_tools)
+
+    def fake_execute(tool_name, args):
+        assert tool_name == "get_current_weather"
+        assert args["location"] == "Hà Nội"
+        return json.dumps({
+            "status": "ok",
+            "location": "Hà Nội",
+            "time": "2026-06-01T16:00",
+            "temperature_c": 33.5,
+            "humidity_percent": 65,
+            "precipitation_mm": 0,
+            "weather": "dông",
+            "is_raining": True,
+            "advice": "Nên mang ô hoặc áo mưa.",
+            "source": "Open-Meteo",
+        }, ensure_ascii=False)
+
+    monkeypatch.setattr(agent, "_execute_tool", fake_execute)
+
+    answer = agent.run("Hà Nội đang mưa k")
+
+    assert "Open-Meteo" in answer
+    assert "Hà Nội" in answer
+    assert "mưa" in answer
+    assert agent.last_trace[0]["direct"] is True
+
+
+def test_budget_question_uses_direct_tool_not_fake_llm():
+    agent = ReActAgent(FakeLLM(), vinwonders_tools)
+
+    answer = agent.run("Đi VinWonders Phú Quốc nhóm 4 người tốn bao nhiêu tiền")
+
+    assert "ngân sách tham khảo" in answer
+    assert "chưa gồm vé" in answer
+    assert "Final Answer: ok" not in answer

@@ -742,7 +742,7 @@ def build_travel_checklist(
     return _json({
         "status": "ok",
         "destination": info["name"],
-        "travel_date": travel_date,
+        "travel_date": travel_date or "ngày bạn dự định đi",
         "checklist": checklist,
         "consultant_note": "Checklist nên được rà lại trước ngày đi 1 ngày vì thời tiết và lịch vận hành có thể thay đổi.",
     })
